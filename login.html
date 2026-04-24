@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quanturion | Mitglieder-Login</title>
+  <style>
+    :root{
+      --bg:#06111c; --bg2:#0b1827; --panel:#0d1927; --line:rgba(255,255,255,.09);
+      --text:#eef4ff; --muted:#b6c4d6; --accent:#1e8fff; --accent2:#56b5ff; --shadow:0 20px 60px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center;
+      background:linear-gradient(180deg,var(--bg),#091521 45%, #08111a 100%);
+      color:var(--text);
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      padding:24px;
+    }
+    .card{
+      width:min(100%, 480px);
+      background:linear-gradient(180deg, rgba(17,34,54,.88), rgba(8,17,26,.95));
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:28px;
+      box-shadow:var(--shadow);
+    }
+    .brand{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+    .brand img{width:52px;height:52px;border-radius:14px;object-fit:cover}
+    h1{margin:0 0 10px;font-size:34px;line-height:1.1}
+    p{color:var(--muted);margin:0 0 22px}
+    .field{display:grid;gap:8px;margin-bottom:16px}
+    label{font-size:14px}
+    input{
+      width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12);
+      color:var(--text); border-radius:14px; padding:14px; font:inherit;
+    }
+    .btns{display:grid;gap:12px;margin-top:18px}
+    button,a{
+      display:inline-flex; align-items:center; justify-content:center; text-decoration:none;
+      border-radius:999px; padding:14px 18px; font-weight:700; cursor:pointer; font:inherit;
+    }
+    button.primary{
+      border:none; color:#fff; background:linear-gradient(135deg,var(--accent),var(--accent2));
+      box-shadow:0 14px 36px rgba(30,143,255,.34);
+    }
+    a.secondary{
+      color:var(--text); border:1px solid var(--line); background:rgba(255,255,255,.03);
+    }
+    .helper{margin-top:18px;color:var(--muted);font-size:14px}
+    .status{margin-top:14px;font-size:14px;color:#8fd3ff;min-height:20px}
+    .error{color:#ff8f8f}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <img src="assets/logo.jpeg" alt="Quanturion Logo">
+      <div>
+        <div style="font-weight:800;letter-spacing:.05em;">QUANTURION</div>
+        <div style="color:#b6c4d6;font-size:14px;">Mitgliederbereich</div>
+      </div>
+    </div>
+
+    <h1>Login</h1>
+    <p>Nur für freigeschaltete Mitglieder.</p>
+
+    <form id="loginForm">
+      <div class="field">
+        <label for="email">E-Mail</label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+      </div>
+
+      <div class="field">
+        <label for="password">Passwort</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+
+      <div class="btns">
+        <button class="primary" type="submit">Einloggen</button>
+        <a class="secondary" href="register.html">Neu registrieren</a>
+        <a class="secondary" href="index.html">Zur Website</a>
+      </div>
+
+      <div id="status" class="status"></div>
+    </form>
+  </div>
+
+  <script type="module">
+    import { loginCustomer, subscribeAuth } from "./auth.js";
+
+    const form = document.getElementById("loginForm");
+    const status = document.getElementById("status");
+
+    subscribeAuth((user) => {
+      if (user) {
+        window.location.href = "members.html";
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      status.textContent = "Bitte warten…";
+      status.classList.remove("error");
+
+      const email = form.email.value;
+      const password = form.password.value;
+
+      try {
+        await loginCustomer({ email, password });
+        status.textContent = "Login erfolgreich…";
+        window.location.href = "members.html";
+      } catch (err) {
+        console.error(err);
+        status.textContent = "Login fehlgeschlagen. Bitte E-Mail und Passwort prüfen.";
+        status.classList.add("error");
+      }
+    });
+  </script>
+</body>
+</html>

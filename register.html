@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quanturion | Registrierung</title>
+  <style>
+    :root{
+      --bg:#06111c; --panel:#0d1927; --line:rgba(255,255,255,.09);
+      --text:#eef4ff; --muted:#b6c4d6; --accent:#1e8fff; --accent2:#56b5ff; --shadow:0 20px 60px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center;
+      background:linear-gradient(180deg,var(--bg),#091521 45%, #08111a 100%);
+      color:var(--text);
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      padding:24px;
+    }
+    .card{
+      width:min(100%, 560px);
+      background:linear-gradient(180deg, rgba(17,34,54,.88), rgba(8,17,26,.95));
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:28px;
+      box-shadow:var(--shadow);
+    }
+    .brand{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+    .brand img{width:52px;height:52px;border-radius:14px;object-fit:cover}
+    h1{margin:0 0 10px;font-size:34px;line-height:1.1}
+    p{color:var(--muted);margin:0 0 22px}
+    .field{display:grid;gap:8px;margin-bottom:16px}
+    label{font-size:14px}
+    input,select{
+      width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12);
+      color:var(--text); border-radius:14px; padding:14px; font:inherit;
+    }
+    select option {
+      background: #ffffff;
+      color: #000000;
+    }
+    .btns{display:grid;gap:12px;margin-top:18px}
+    button,a{
+      display:inline-flex; align-items:center; justify-content:center; text-decoration:none;
+      border-radius:999px; padding:14px 18px; font-weight:700; cursor:pointer; font:inherit;
+    }
+    button.primary{
+      border:none; color:#fff; background:linear-gradient(135deg,var(--accent),var(--accent2));
+      box-shadow:0 14px 36px rgba(30,143,255,.34);
+    }
+    a.secondary{
+      color:var(--text); border:1px solid var(--line); background:rgba(255,255,255,.03);
+    }
+    .status{margin-top:14px;font-size:14px;color:#8fd3ff;min-height:20px}
+    .error{color:#ff8f8f}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <img src="assets/logo.jpeg" alt="Quanturion Logo">
+      <div>
+        <div style="font-weight:800;letter-spacing:.05em;">QUANTURION</div>
+        <div style="color:#b6c4d6;font-size:14px;">Mitgliederbereich</div>
+      </div>
+    </div>
+
+    <h1>Registrierung</h1>
+    <p>Konten werden angelegt und danach manuell freigeschaltet.</p>
+
+    <form id="registerForm">
+      <div class="field">
+        <label for="fullName">Vollständiger Name</label>
+        <input id="fullName" name="fullName" type="text" autocomplete="name" required>
+      </div>
+
+      <div class="field">
+        <label for="email">E-Mail</label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+      </div>
+
+      <div class="field">
+        <label for="plan">Tarif</label>
+        <select id="plan" name="plan">
+          <option value="single">Single – 49 ₪ / Monat</option>
+          <option value="family">Familie – 99 ₪ / Monat</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="password">Passwort</label>
+        <input id="password" name="password" type="password" autocomplete="new-password" required>
+      </div>
+
+      <div class="field">
+        <label for="confirmPassword">Passwort wiederholen</label>
+        <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required>
+      </div>
+
+      <div class="btns">
+        <button class="primary" type="submit">Registrieren</button>
+        <a class="secondary" href="login.html">Zum Login</a>
+        <a class="secondary" href="index.html">Zur Website</a>
+      </div>
+
+      <div id="status" class="status"></div>
+    </form>
+  </div>
+
+  <script type="module">
+    import { registerCustomer } from "./auth.js";
+
+    const form = document.getElementById("registerForm");
+    const status = document.getElementById("status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      status.textContent = "";
+      status.classList.remove("error");
+
+      const fullName = form.fullName.value.trim();
+      const email = form.email.value.trim();
+      const plan = form.plan.value;
+      const password = form.password.value;
+      const confirmPassword = form.confirmPassword.value;
+
+      if (password.length < 6) {
+        status.textContent = "Das Passwort muss mindestens 6 Zeichen lang sein.";
+        status.classList.add("error");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        status.textContent = "Die Passwörter stimmen nicht überein.";
+        status.classList.add("error");
+        return;
+      }
+
+      try {
+        status.textContent = "Konto wird erstellt…";
+
+        await registerCustomer({
+          email,
+          password,
+          fullName,
+          plan,
+          language: "de"
+        });
+
+        status.textContent = "Registrierung erfolgreich. Bitte jetzt einloggen.";
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 800);
+
+      } catch (err) {
+        console.error(err);
+        status.textContent = err?.message || "Registrierung fehlgeschlagen.";
+        status.classList.add("error");
+      }
+    });
+  </script>
+</body>
+</html>

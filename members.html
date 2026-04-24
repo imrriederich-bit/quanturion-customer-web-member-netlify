@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quanturion | Mitgliederbereich</title>
+  <style>
+    :root{
+      --bg:#06111c; --bg2:#0b1827; --panel:#0d1927; --panel2:#112236; --line:rgba(255,255,255,.09);
+      --text:#eef4ff; --muted:#b6c4d6; --accent:#1e8fff; --accent2:#56b5ff; --shadow:0 20px 60px rgba(0,0,0,.35);
+      --ok:#43c27c; --warn:#f1c04c; --max:1240px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,var(--bg),#091521 45%, #08111a 100%);
+      color:var(--text);
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    body.rtl{direction:rtl}
+    .wrap{width:min(var(--max), calc(100% - 40px)); margin:0 auto}
+    .nav{
+      position:sticky; top:0; z-index:30; backdrop-filter:blur(16px);
+      background:rgba(6,17,28,.78); border-bottom:1px solid var(--line);
+    }
+    .nav-inner{
+      display:flex; align-items:center; justify-content:space-between; min-height:78px; gap:18px;
+    }
+    .brand{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit}
+    .brand img{width:46px;height:46px;border-radius:14px;object-fit:cover}
+    .brand small{display:block;color:var(--muted);font-size:14px}
+    .nav-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .lang-switch {
+      display:flex; gap:8px; background:rgba(255,255,255,.04); border:1px solid var(--line);
+      padding:6px; border-radius:999px; direction:ltr;
+    }
+    .lang-switch button {
+      background:transparent; border:none; color:var(--muted); padding:8px 12px; border-radius:999px;
+      cursor:pointer; font:inherit; font-size:13px; font-weight:700;
+    }
+    .lang-switch button.active {
+      background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff;
+      box-shadow:0 10px 24px rgba(30,143,255,.28);
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:12px 16px; border-radius:999px;
+      border:1px solid var(--line); background:rgba(255,255,255,.03); color:var(--text); font-weight:700; cursor:pointer;
+      text-decoration:none;
+    }
+    .btn.primary{
+      border:none; color:#fff; background:linear-gradient(135deg,var(--accent),var(--accent2));
+      box-shadow:0 14px 36px rgba(30,143,255,.34);
+    }
+    .btn.small{padding:10px 14px; font-size:14px}
+    main{padding:34px 0 70px}
+    .hero,.panel,.shortcut-card{
+      background:linear-gradient(180deg, rgba(17,34,54,.88), rgba(8,17,26,.95));
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:24px;
+      box-shadow:var(--shadow);
+    }
+    .hero{margin-bottom:22px}
+    h1{margin:0 0 12px;font-size:42px;line-height:1.05}
+    h2{margin:0 0 10px;font-size:28px}
+    h3{margin:0 0 14px}
+    p{color:var(--muted)}
+    .status-pill{
+      display:inline-flex; padding:7px 10px; border-radius:999px; font-size:12px; font-weight:800;
+      letter-spacing:.08em; text-transform:uppercase;
+    }
+    .status-active{background:rgba(67,194,124,.12); color:#8de0ac; border:1px solid rgba(67,194,124,.25)}
+    .status-inactive{background:rgba(241,192,76,.12); color:#ffd876; border:1px solid rgba(241,192,76,.25)}
+    .profile-line{margin:10px 0 0}
+    .shortcuts{
+      display:grid; gap:16px; grid-template-columns:repeat(3,1fr); margin-bottom:22px;
+    }
+    .shortcut-card{
+      cursor:pointer; transition:.2s ease; text-decoration:none; color:inherit;
+    }
+    .shortcut-card:hover{transform:translateY(-2px); border-color:rgba(86,181,255,.45)}
+    .panels{display:grid; gap:22px}
+    .field-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px}
+    .field{display:grid; gap:8px}
+    .field.full{grid-column:1 / -1}
+    label{font-size:14px}
+    input,select,textarea{
+      width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1);
+      color:var(--text); border-radius:14px; padding:14px; font:inherit;
+    }
+    textarea{min-height:100px; resize:vertical}
+    select option{
+      background:#ffffff;
+      color:#000000;
+    }
+    .panel-head{
+      display:flex; justify-content:space-between; gap:18px; align-items:flex-start; margin-bottom:18px;
+    }
+    .hint{
+      padding:14px 16px; border-radius:18px; background:rgba(255,255,255,.035); border:1px solid rgba(255,255,255,.06);
+      color:var(--muted); margin:14px 0 18px;
+    }
+    .save-row{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:18px}
+    .save-status{font-size:14px; color:#8fd3ff; min-height:20px}
+    .muted{color:var(--muted)}
+    .loading{
+      min-height:100vh; display:grid; place-items:center; color:var(--muted);
+    }
+    .upload-box{
+      margin-top:18px;
+      padding:18px;
+      border-radius:18px;
+      background:rgba(255,255,255,.035);
+      border:1px solid rgba(255,255,255,.06);
+    }
+    .upload-row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .upload-status{
+      font-size:14px;
+      color:#8fd3ff;
+      min-height:20px;
+      margin-top:10px;
+    }
+    .uploads-list{
+      display:grid;
+      gap:10px;
+      margin-top:14px;
+    }
+    .upload-item{
+      padding:12px 14px;
+      border-radius:14px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .upload-item a{
+      color:#8fd3ff;
+      text-decoration:none;
+    }
+    @media (max-width: 980px){
+      .nav-inner{flex-direction:column; align-items:flex-start; padding:14px 0}
+      .nav-right{width:100%; justify-content:space-between}
+      .shortcuts,.field-grid{grid-template-columns:1fr}
+      h1{font-size:34px}
+      .panel-head{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">Lade Mitgliederbereich…</div>
+
+  <div id="app" style="display:none;">
+    <nav class="nav">
+      <div class="wrap nav-inner">
+        <a class="brand" href="index.html">
+          <img src="assets/logo.jpeg" alt="Quanturion Logo">
+          <div>
+            <div style="font-weight:800;letter-spacing:.05em;">QUANTURION</div>
+            <small data-i18n="memberArea"></small>
+          </div>
+        </a>
+
+        <div class="nav-right">
+          <div class="lang-switch" aria-label="Language switcher">
+            <button type="button" data-lang-btn="de">DE</button>
+            <button type="button" data-lang-btn="en">EN</button>
+            <button type="button" data-lang-btn="he">עברית</button>
+          </div>
+          <a class="btn small" href="index.html" data-i18n="toWebsite"></a>
+          <button id="logoutBtn" class="btn small" data-i18n="logout"></button>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <div class="wrap">
+        <section class="hero">
+          <div id="heroContent"></div>
+        </section>
+
+        <section id="inactiveSection" style="display:none;" class="panel">
+          <h2 data-i18n="inactiveTitle"></h2>
+          <p data-i18n="inactiveDesc"></p>
+        </section>
+
+        <section id="activeSection" style="display:none;">
+          <div class="shortcuts">
+            <a class="shortcut-card" href="#profilePanel"><h3 data-i18n="profileTitle"></h3><p class="muted" data-i18n="profileDesc"></p></a>
+            <a class="shortcut-card" href="#mobilePanel"><h3 data-i18n="mobileTitle"></h3><p class="muted" data-i18n="mobileDesc"></p></a>
+            <a class="shortcut-card" href="#homePanel"><h3 data-i18n="homeTitle"></h3><p class="muted" data-i18n="homeDesc"></p></a>
+            <a class="shortcut-card" href="#electricityPanel"><h3 data-i18n="electricityTitle"></h3><p class="muted" data-i18n="electricityDesc"></p></a>
+            <a class="shortcut-card" href="#gasPanel"><h3 data-i18n="gasTitle"></h3><p class="muted" data-i18n="gasDesc"></p></a>
+            <a class="shortcut-card" href="#streamingPanel"><h3 data-i18n="streamingTitle"></h3><p class="muted" data-i18n="streamingDesc"></p></a>
+            <a class="shortcut-card" href="#loanPanel"><h3 data-i18n="loanTitle"></h3><p class="muted" data-i18n="loanDesc"></p></a>
+          </div>
+
+          <div class="panels">
+            <section id="profilePanel" class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2 data-i18n="profileTitle"></h2>
+                  <p class="muted" data-i18n="profileDesc"></p>
+                </div>
+              </div>
+
+              <form id="profileForm">
+                <div class="field-grid">
+                  <div class="field"><label data-i18n="labelPhone"></label><input name="phone" /></div>
+                  <div class="field"><label data-i18n="labelMainAddress"></label><input name="mainAddress" /></div>
+                  <div class="field"><label data-i18n="labelCity"></label><input name="city" /></div>
+                  <div class="field"><label data-i18n="labelHouseholdSize"></label><input name="householdSize" type="number" min="1" /></div>
+                  <div class="field full"><label data-i18n="labelGeneralNotes"></label><textarea name="generalNotes"></textarea></div>
+                </div>
+                <div class="save-row">
+                  <button class="btn primary" type="submit" data-i18n="saveButton"></button>
+                  <div class="save-status" id="profileStatus"></div>
+                </div>
+              </form>
+            </section>
+
+            <section id="mobilePanel" class="panel">
+              <div class="panel-head">
+                <div><h2 data-i18n="mobileTitle"></h2><p class="muted" data-i18n="mobileDesc"></p></div>
+              </div>
+              <div class="hint" id="mobilePlanHint"></div>
+              <form id="mobileForm">
+                <div class="field-grid">
+                  <div class="field"><label data-i18n="labelProvider"></label><input name="provider" /></div>
+                  <div class="field"><label data-i18n="labelMonthlyCost"></label><input name="monthlyCost" /></div>
+                  <div class="field"><label data-i18n="labelContractOwner"></label><input name="contractOwner" /></div>
+                  <div class="field"><label data-i18n="labelNumbersCount"></label><input name="numbersCount" type="number" min="1" /></div>
+                  <div class="field full"><label data-i18n="labelNotes"></label><textarea name="notes"></textarea></div>
+                </div>
+                <div class="save-row">
+                  <button class="btn primary" type="submit" data-i18n="saveButton"></button>
+                  <div class="save-status" id="mobileStatus"></div>
+                </div>
+              </form>
+              <div class="upload-box" id="upload-mobile"></div>
+            </section>
+
+            <section id="homePanel" class="panel">
+              <div class="panel-head">
+                <div><h2 data-i18n="homeTitle"></h2><p class="muted" data-i18n="homeDesc"></p></div>
+              </div>
+              <div class="hint" id="homePlanHint"></div>
+              <form id="homeForm">
+                <div class="field-grid">
+                  <div class="field"><label data-i18n="labelProvider"></label><input name="provider" /></div>
+                  <div class="field"><label data-i18n="labelMonthlyCost"></label><input name="monthlyCost" /></div>
+                  <div class="field"><label data-i18n="labelPackageDetails"></label><input name="packageDetails" /></div>
+                  <div class="field"><label data-i18n="labelServiceAddress"></label><input name="serviceAddress" /></div>
+                  <div class="field full"><label data-i18n="labelNotes"></label><textarea name="notes"></textarea></div>
+                </div>
+                <div class="save-row">
+                  <button class="btn primary" type="submit" data-i18n="saveButton"></button>
+                  <div class="save-status" id="homeStatus"></div>
+                </div>
+              </form>
+              <div class="upload-box" id="upload-home"></div>
+            </section>
+
+            <section id="electricityPanel" class="panel">
+              <div class="panel-head">
+                <div><h2 data-i18n="electricityTitle"></h2><p class="muted" data-i18n="electricityDesc"></p></div>
+              </div>
+              <form id="electricityForm">
+                <div class="field-grid">
+                  <div class="field"><label data-i18n="labelProvider"></label><input name="provider" /></div>
+                  <div class="field"><label data-i18n="labelMonthlyCost"></label><input name="monthlyCost" /></div>
+                  <div class="field"><label data-i18n="labelCustomerNumber"></label><input name="customerNumber" /></div>
+                  <div class="field"><label data-i18n="labelServiceAddress"></label><input name="serviceAddress" /></div>
+                  <div class="field full"><label data-i18n="labelNotes"></label><textarea name="notes"></textarea></div>
+                </div>
+                <div class="save-row">
+                  <button class="btn primary" type="submit" data-i18n="saveButton"></button>
+                  <div class="save-status" id="electricityStatus"></div>
+                </div>
+              </form>
+              <div class="upload-box" id="upload-electricity"></div>
+            </section>
+
+            <section id="gasPanel" class="panel">
+              <div class="panel-head">
+                <div><h2 data-i18n="gasTitle"></h2><p class="muted" data-i18n="gasDesc"></p></div>
+              </div>
+              <form id="gasForm">
+                <div class="field-grid">
+                  <div class="field"><label data-i18n="labelProvider"></label><input name="provider" /></div>
+                  <div class="field"><label data-i18n="labelMonthlyCost"></label><input name="monthlyCost" /></div>
+                  <div class="field"><label data-i18n="labelCustomerNumber"></label><input name="customerNumber" /></div>
+                  <div class="field"><label data-i18n="labelServiceAddress"></label><input name="serviceAddress" /></div>
+                  <div class="field full"><label data-i18n="labelNotes"></label><textarea name="notes"></textarea></div>
+                </div>
+                <div class="save-row">
+                  <button class="btn primary" type="submit" data-i18n="saveButton"></button>
+                  <div class="save-status" id="gasStatus"></div>
+                </div>
+              </form>
+              <div class="upload-box" id="upload-gas"></div>
+            </section>
+
+            <section id="streamingPanel" class="panel">
+              <div class="panel-head">
+                <div><h2 data-i18n="streamingTitle"></h2><p class="muted" data-i18n="streamingDesc"></p></div>
+              </div>
+              <form id="streamingForm">
+                <div class="field-grid">
+                  <div class="field"><label data-i18n="labelStreamingServices"></label><input name="services" /></div>
+                  <div class="field"><label data-i18n="labelTotalMonthlyCost"></label><input name="totalMonthlyCost" /></div>
+                  <div class="field"><label data-i18n="labelAccountOwner"></label><input name="accountOwner" /></div>
+                  <div class="field"><label data-i18n="labelAccountsCount"></label><input name="accountsCount" type="number" min="1" /></div>
+                  <div class="field full"><label data-i18n="labelNotes"></label><textarea name="notes"></textarea></div>
+                </div>
+                <div class="save-row">
+                  <button class="btn primary" type="submit" data-i18n="saveButton"></button>
+                  <div class="save-status" id="streamingStatus"></div>
+                </div>
+              </form>
+              <div class="upload-box" id="upload-streaming"></div>
+            </section>
+
+            <section id="loanPanel" class="panel">
+              <div class="panel-head">
+                <div><h2 data-i18n="loanTitle"></h2><p class="muted" data-i18n="loanDesc"></p></div>
+              </div>
+              <div class="hint" data-i18n="loanHint"></div>
+              <form id="loanForm">
+                <div class="field-grid">
+                  <div class="field"><label data-i18n="labelLender"></label><input name="lender" /></div>
+                  <div class="field"><label data-i18n="labelMonthlyPayment"></label><input name="monthlyPayment" /></div>
+                  <div class="field"><label data-i18n="labelRemainingBalance"></label><input name="remainingBalance" /></div>
+                  <div class="field"><label data-i18n="labelPurpose"></label><input name="purpose" /></div>
+                  <div class="field full"><label data-i18n="labelNotes"></label><textarea name="notes"></textarea></div>
+                </div>
+                <div class="save-row">
+                  <button class="btn primary" type="submit" data-i18n="saveButton"></button>
+                  <div class="save-status" id="loanStatus"></div>
+                </div>
+              </form>
+              <div class="upload-box" id="upload-loan"></div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { subscribeAuth, getCustomerProfile, logoutCustomer } from "./auth.js";
+    import { db, storage } from "./firebase-web.js";
+    import {
+      doc,
+      getDoc,
+      setDoc,
+      serverTimestamp,
+      collection,
+      addDoc,
+      getDocs,
+      query,
+      where,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      ref,
+      uploadBytes,
+      getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    const TEXTS = {
+      de: {
+        memberArea: "Mitgliederbereich",
+        toWebsite: "Zur Website",
+        logout: "Logout",
+        loading: "Lade Mitgliederbereich…",
+        active: "AKTIV",
+        inactive: "WARTET",
+        welcome: "Willkommen",
+        emailLabel: "E-Mail",
+        planLabel: "Tarif",
+        inactiveTitle: "Dein Konto ist angelegt.",
+        inactiveDesc: "Die Mitgliedschaft ist noch nicht aktiv. Du wirst nach Freischaltung freigegeben.",
+        missingProfile: "Konto gefunden, aber kein Profil.",
+        missingProfileDesc: "Für diesen Benutzer existiert noch kein Kundendokument in Firestore.",
+        reviewStatusTitle: "Bearbeitungsstatus",
+        reviewPending: "In Prüfung",
+        reviewApproved: "Freigegeben",
+        reviewRejected: "Abgelehnt",
+        adminMessageTitle: "Hinweis vom Admin",
+        reviewedAtLabel: "Zuletzt geprüft",
+        profileTitle: "Allgemeine Daten",
+        profileDesc: "Diese Angaben gibst du nur einmal ein und wir nutzen sie später für mehrere Bereiche.",
+        mobileTitle: "Mobilfunk",
+        mobileDesc: "Tarif, Anbieter und Kosten erfassen.",
+        homeTitle: "Home Bundle",
+        homeDesc: "Internet + TV/Home als bestehendes Paket erfassen.",
+        electricityTitle: "Strom",
+        electricityDesc: "Bestehenden Vertrag und Kosten hinterlegen.",
+        gasTitle: "Gas",
+        gasDesc: "Bestehenden Gasvertrag und Kosten hinterlegen.",
+        streamingTitle: "Streaming",
+        streamingDesc: "Alle Streaming-Abos gesammelt erfassen.",
+        loanTitle: "Darlehen",
+        loanDesc: "Nur zur Weiterleitung an Partnerunternehmen.",
+        labelPhone: "Telefon",
+        labelMainAddress: "Hauptadresse",
+        labelCity: "Ort",
+        labelHouseholdSize: "Haushaltsgröße",
+        labelGeneralNotes: "Allgemeine Hinweise",
+        labelProvider: "Anbieter",
+        labelMonthlyCost: "Monatliche Kosten",
+        labelContractOwner: "Vertragsinhaber",
+        labelNumbersCount: "Anzahl Nummern",
+        labelNotes: "Notizen",
+        labelPackageDetails: "Paket / Tarifdetails",
+        labelServiceAddress: "Service-Adresse",
+        labelCustomerNumber: "Kundennummer",
+        labelStreamingServices: "Dienste / Abos",
+        labelTotalMonthlyCost: "Gesamtkosten pro Monat",
+        labelAccountOwner: "Kontoinhaber",
+        labelAccountsCount: "Anzahl Abos",
+        labelLender: "Kreditgeber / Unternehmen",
+        labelMonthlyPayment: "Monatliche Rate",
+        labelRemainingBalance: "Restschuld",
+        labelPurpose: "Zweck / Beschreibung",
+        saveButton: "Speichern",
+        saveSuccess: "Gespeichert.",
+        saveError: "Speichern fehlgeschlagen.",
+        mobilePlanSingle: "Single-Tarif: 1 Mobilfunk-Eintrag vorgesehen.",
+        mobilePlanFamily: "Familien-Tarif: mehrere Mobilfunk-Einträge sind möglich, solange sie zur Hauptadresse gehören.",
+        homePlanSingle: "Single-Tarif: 1 Home-Bundle-Vertrag vorgesehen.",
+        homePlanFamily: "Familien-Tarif: alles muss auf die Hauptadresse des Hauptmitglieds laufen.",
+        loanHint: "Bei Darlehen erfolgt nur die Weiterleitung an das passende Partnerunternehmen. Keine eigene Beratung.",
+        logoutError: "Logout fehlgeschlagen.",
+        uploadTitle: "Dokumente oder Fotos hochladen",
+        uploadDesc: "Du kannst PDF, Bild oder Rechnung hochladen.",
+        chooseFile: "Datei auswählen",
+        uploadButton: "Hochladen",
+        noFile: "Keine Datei gewählt.",
+        uploading: "Upload läuft…",
+        uploadSuccess: "Upload erfolgreich.",
+        uploadError: "Upload fehlgeschlagen.",
+        uploadedFiles: "Hochgeladene Dateien",
+        openFile: "Öffnen",
+        labelDocumentType: "Dokumenttyp"
+      },
+      en: {
+        memberArea: "Members Area",
+        toWebsite: "To Website",
+        logout: "Logout",
+        loading: "Loading members area…",
+        active: "ACTIVE",
+        inactive: "PENDING",
+        welcome: "Welcome",
+        emailLabel: "Email",
+        planLabel: "Plan",
+        inactiveTitle: "Your account has been created.",
+        inactiveDesc: "Your membership is not active yet. Access will be granted after approval.",
+        missingProfile: "Account found, but no profile.",
+        missingProfileDesc: "There is no customer document in Firestore for this user yet.",
+        reviewStatusTitle: "Review status",
+        reviewPending: "Under review",
+        reviewApproved: "Approved",
+        reviewRejected: "Rejected",
+        adminMessageTitle: "Admin message",
+        reviewedAtLabel: "Last reviewed",
+        profileTitle: "General Data",
+        profileDesc: "You enter this only once and we use it later across several areas.",
+        mobileTitle: "Mobile",
+        mobileDesc: "Capture plan, provider and monthly cost.",
+        homeTitle: "Home Bundle",
+        homeDesc: "Capture your existing internet + TV/Home bundle.",
+        electricityTitle: "Electricity",
+        electricityDesc: "Store your current contract and costs.",
+        gasTitle: "Gas",
+        gasDesc: "Store your current gas contract and costs.",
+        streamingTitle: "Streaming",
+        streamingDesc: "Capture all streaming subscriptions together.",
+        loanTitle: "Loans",
+        loanDesc: "For forwarding to partner companies only.",
+        labelPhone: "Phone",
+        labelMainAddress: "Main address",
+        labelCity: "City",
+        labelHouseholdSize: "Household size",
+        labelGeneralNotes: "General notes",
+        labelProvider: "Provider",
+        labelMonthlyCost: "Monthly cost",
+        labelContractOwner: "Contract owner",
+        labelNumbersCount: "Number of lines",
+        labelNotes: "Notes",
+        labelPackageDetails: "Package / plan details",
+        labelServiceAddress: "Service address",
+        labelCustomerNumber: "Customer number",
+        labelStreamingServices: "Services / subscriptions",
+        labelTotalMonthlyCost: "Total monthly cost",
+        labelAccountOwner: "Account owner",
+        labelAccountsCount: "Number of subscriptions",
+        labelLender: "Lender / company",
+        labelMonthlyPayment: "Monthly payment",
+        labelRemainingBalance: "Remaining balance",
+        labelPurpose: "Purpose / description",
+        saveButton: "Save",
+        saveSuccess: "Saved.",
+        saveError: "Saving failed.",
+        mobilePlanSingle: "Single plan: 1 mobile entry intended.",
+        mobilePlanFamily: "Family plan: multiple mobile entries are allowed as long as they belong to the main address.",
+        homePlanSingle: "Single plan: 1 home bundle contract intended.",
+        homePlanFamily: "Family plan: everything must be registered to the main member's address.",
+        loanHint: "For loans, we only forward the case to the relevant partner company. No own advisory service.",
+        logoutError: "Logout failed.",
+        uploadTitle: "Upload documents or photos",
+        uploadDesc: "You can upload PDF, image or bill.",
+        chooseFile: "Choose file",
+        uploadButton: "Upload",
+        noFile: "No file selected.",
+        uploading: "Uploading…",
+        uploadSuccess: "Upload successful.",
+        uploadError: "Upload failed.",
+        uploadedFiles: "Uploaded files",
+        openFile: "Open",
+        labelDocumentType: "Document type"
+      },
+      he: {
+        memberArea: "אזור חברים",
+        toWebsite: "לאתר",
+        logout: "התנתקות",
+        loading: "טוען את אזור החברים…",
+        active: "פעיל",
+        inactive: "ממתין",
+        welcome: "ברוך הבא",
+        emailLabel: "אימייל",
+        planLabel: "מסלול",
+        inactiveTitle: "החשבון שלך נוצר.",
+        inactiveDesc: "המנוי עדיין לא פעיל. הגישה תיפתח לאחר אישור.",
+        missingProfile: "החשבון נמצא, אבל אין פרופיל.",
+        missingProfileDesc: "עדיין לא קיים מסמך לקוח ב-Firestore עבור המשתמש הזה.",
+        reviewStatusTitle: "סטטוס בדיקה",
+        reviewPending: "בבדיקה",
+        reviewApproved: "אושר",
+        reviewRejected: "נדחה",
+        adminMessageTitle: "הודעת אדמין",
+        reviewedAtLabel: "נבדק לאחרונה",         
+        profileTitle: "נתונים כלליים",
+        profileDesc: "את הנתונים האלה מזינים פעם אחת, ובהמשך נשתמש בהם בכמה אזורים.",
+        mobileTitle: "סלולר",
+        mobileDesc: "הזנת מסלול, ספק ועלות חודשית.",
+        homeTitle: "חבילת בית",
+        homeDesc: "הזנת חבילת אינטרנט + TV/Home קיימת.",
+        electricityTitle: "חשמל",
+        electricityDesc: "שמירת החוזה הקיים והעלויות.",
+        gasTitle: "גז",
+        gasDesc: "שמירת חוזה הגז הקיים והעלויות.",
+        streamingTitle: "סטרימינג",
+        streamingDesc: "הזנת כל המנויים במקום אחד.",
+        loanTitle: "הלוואות",
+        loanDesc: "להעברה לחברות שותפות בלבד.",
+        labelPhone: "טלפון",
+        labelMainAddress: "כתובת ראשית",
+        labelCity: "עיר",
+        labelHouseholdSize: "גודל משק הבית",
+        labelGeneralNotes: "הערות כלליות",
+        labelProvider: "ספק",
+        labelMonthlyCost: "עלות חודשית",
+        labelContractOwner: "בעל החוזה",
+        labelNumbersCount: "מספר קווים",
+        labelNotes: "הערות",
+        labelPackageDetails: "פרטי חבילה / מסלול",
+        labelServiceAddress: "כתובת שירות",
+        labelCustomerNumber: "מספר לקוח",
+        labelStreamingServices: "שירותים / מנויים",
+        labelTotalMonthlyCost: "עלות חודשית כוללת",
+        labelAccountOwner: "בעל החשבון",
+        labelAccountsCount: "מספר מנויים",
+        labelLender: "מלווה / חברה",
+        labelMonthlyPayment: "החזר חודשי",
+        labelRemainingBalance: "יתרה לסילוק",
+        labelPurpose: "מטרה / תיאור",
+        saveButton: "שמירה",
+        saveSuccess: "נשמר.",
+        saveError: "השמירה נכשלה.",
+        mobilePlanSingle: "במסלול יחיד: מיועד רישום סלולר אחד.",
+        mobilePlanFamily: "במסלול משפחתי: אפשר כמה רישומי סלולר, כל עוד הם שייכים לכתובת הראשית.",
+        homePlanSingle: "במסלול יחיד: מיועד חוזה Home Bundle אחד.",
+        homePlanFamily: "במסלול משפחתי: הכל חייב להיות רשום לכתובת הראשית של החבר הראשי.",
+        loanHint: "בהלוואות יש רק הפניה לחברת השותף המתאימה. אין ייעוץ עצמאי.",
+        logoutError: "ההתנתקות נכשלה.",
+        uploadTitle: "העלאת מסמכים או תמונות",
+        uploadDesc: "אפשר להעלות PDF, תמונה או חשבונית.",
+        chooseFile: "בחירת קובץ",
+        uploadButton: "העלאה",
+        noFile: "לא נבחר קובץ.",
+        uploading: "מעלה…",
+        uploadSuccess: "ההעלאה הצליחה.",
+        uploadError: "ההעלאה נכשלה.",
+        uploadedFiles: "קבצים שהועלו",
+        openFile: "פתיחה",
+        labelDocumentType: "סוג מסמך"
+      }
+    };
+
+    const FORM_IDS = ["profile", "mobile", "home", "electricity", "gas", "streaming", "loan"];
+    const UPLOAD_CATEGORIES = ["mobile", "home", "electricity", "gas", "streaming", "loan"];
+    let currentLang = localStorage.getItem("quanturion_lang");
+    if (!["de", "en", "he"].includes(currentLang)) currentLang = "de";
+    let currentUser = null;
+    let currentProfile = null;
+
+    const loading = document.getElementById("loading");
+    const app = document.getElementById("app");
+    const heroContent = document.getElementById("heroContent");
+    const activeSection = document.getElementById("activeSection");
+    const inactiveSection = document.getElementById("inactiveSection");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    function t(key) {
+      function escapeHtml(value) {
+       return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatFirestoreDate(value) {
+     const seconds = value?.seconds;
+     if (!seconds) return "—";
+     return new Date(seconds * 1000).toLocaleString();
+    }
+
+    function reviewLabel(status) {
+     switch (status) {
+       case "approved":
+         return t("reviewApproved");
+       case "rejected":
+          return t("reviewRejected");
+       case "pending":
+       default:
+         return t("reviewPending");
+      }
+    }
+      function escapeHtml(value) {
+       return String(value ?? "")
+       .replace(/&/g, "&amp;")
+       .replace(/</g, "&lt;")
+       .replace(/>/g, "&gt;")
+       .replace(/"/g, "&quot;")
+       .replace(/'/g, "&#39;");
+    }
+
+    function formatFirestoreDate(value) {
+     const seconds = value?.seconds;
+     if (!seconds) return "—";
+     return new Date(seconds * 1000).toLocaleString();
+    }
+
+    function reviewLabel(status) {
+     switch (status) {
+       case "approved":
+        return t("reviewApproved");
+       case "rejected":
+        return t("reviewRejected");
+       case "pending":
+       default:
+        return t("reviewPending");
+     }
+    }
+      return (TEXTS[currentLang] && TEXTS[currentLang][key]) || TEXTS.de[key] || key;
+    }
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem("quanturion_lang", lang);
+
+      document.documentElement.lang = lang;
+      document.body.classList.toggle("rtl", lang === "he");
+      document.body.setAttribute("dir", lang === "he" ? "rtl" : "ltr");
+      document.title = lang === "de"
+        ? "Quanturion | Mitgliederbereich"
+        : lang === "en"
+          ? "Quanturion | Members Area"
+          : "Quanturion | אזור חברים";
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        el.textContent = t(el.getAttribute("data-i18n"));
+      });
+
+      document.querySelectorAll("[data-lang-btn]").forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-lang-btn") === lang);
+      });
+
+      loading.textContent = t("loading");
+
+      if (currentProfile) {
+        renderHero(currentProfile);
+        renderPlanHints(currentProfile.plan);
+      }
+
+      renderUploadBoxes();
+      if (currentUser) {
+        UPLOAD_CATEGORIES.forEach(category => loadUploads(category));
+      }
+    }
+
+    function renderHero(profile) {
+     const isActive = profile.membershipStatus === "active";
+     const statusClass = isActive ? "status-active" : "status-inactive";
+     const statusText = isActive ? t("active") : t("inactive");
+
+     const reviewStatus = profile.adminReviewStatus || "pending";
+     const reviewText = reviewLabel(reviewStatus);
+     const reviewedAt = formatFirestoreDate(profile.lastReviewedAt);
+     const adminNotes = profile.adminNotes ? escapeHtml(profile.adminNotes) : "";
+
+     heroContent.innerHTML = `
+       <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+         <div>
+           <span class="status-pill ${statusClass}">${statusText}</span>
+           <h1>${t("welcome")} ${escapeHtml(profile.fullName || "")}</h1>
+           <p class="profile-line">${t("emailLabel")}: ${escapeHtml(profile.email || currentUser?.email || "-")}</p>
+           <p class="profile-line">${t("planLabel")}: <strong style="color:#eef4ff;">${escapeHtml(profile.plan || "-")}</strong></p>
+         </div>
+       </div>
+
+       <div class="list" style="margin-top:18px;">
+         <div class="item">
+           <strong>${t("reviewStatusTitle")}: ${reviewText}</strong>
+           <div class="muted" style="margin-top:8px;">${t("reviewedAtLabel")}: ${escapeHtml(reviewedAt)}</div>
+           ${
+             adminNotes
+               ? `<div style="margin-top:12px;"><strong>${t("adminMessageTitle")}:</strong><div style="margin-top:6px;">${adminNotes}</div></div>`
+               : ""
+           }
+         </div>
+      </div>
+     `;
+    }
+
+    function renderPlanHints(plan) {
+      document.getElementById("mobilePlanHint").textContent =
+        plan === "family" ? t("mobilePlanFamily") : t("mobilePlanSingle");
+
+      document.getElementById("homePlanHint").textContent =
+        plan === "family" ? t("homePlanFamily") : t("homePlanSingle");
+    }
+
+    function fillForm(formId, data = {}) {
+      const form = document.getElementById(`${formId}Form`);
+      if (!form) return;
+      Array.from(form.elements).forEach(el => {
+        if (!el.name) return;
+        el.value = data[el.name] ?? "";
+      });
+    }
+
+    async function loadFormDoc(uid, formId) {
+      const ref = doc(db, "customers", uid, "memberData", formId);
+      const snap = await getDoc(ref);
+      if (snap.exists()) fillForm(formId, snap.data());
+    }
+
+    async function loadAllMemberDocs(uid) {
+      for (const formId of FORM_IDS) {
+        await loadFormDoc(uid, formId);
+      }
+    }
+
+    async function saveFormData(formId) {
+      const form = document.getElementById(`${formId}Form`);
+      const status = document.getElementById(`${formId}Status`);
+      const payload = Object.fromEntries(new FormData(form).entries());
+
+      status.textContent = "…";
+
+      try {
+        await setDoc(
+          doc(db, "customers", currentUser.uid, "memberData", formId),
+          { ...payload, updatedAt: serverTimestamp() },
+          { merge: true }
+        );
+        status.textContent = t("saveSuccess");
+      } catch (err) {
+        console.error(err);
+        status.textContent = t("saveError");
+      }
+    }
+
+    function renderUploadBoxes() {
+      UPLOAD_CATEGORIES.forEach(category => {
+        const box = document.getElementById(`upload-${category}`);
+        if (!box) return;
+
+        box.innerHTML = `
+          <h3 style="margin-top:0;">${t("uploadTitle")}</h3>
+          <p class="muted" style="margin-top:0;">${t("uploadDesc")}</p>
+
+          <div class="field-grid">
+            <div class="field">
+              <label>${t("labelDocumentType")}</label>
+              <input id="${category}-docType" placeholder="z. B. Rechnung / Vertrag / Foto" />
+            </div>
+            <div class="field">
+              <label>${t("chooseFile")}</label>
+              <input id="${category}-file" type="file" accept=".pdf,image/*" />
+            </div>
+          </div>
+
+          <div class="upload-row">
+            <button class="btn primary" type="button" id="${category}-upload-btn">${t("uploadButton")}</button>
+          </div>
+
+          <div class="upload-status" id="${category}-upload-status"></div>
+          <div class="uploads-list" id="${category}-uploads-list"></div>
+        `;
+
+        document.getElementById(`${category}-upload-btn`).addEventListener("click", () => uploadFile(category));
+      });
+    }
+
+    async function uploadFile(category) {
+      const fileInput = document.getElementById(`${category}-file`);
+      const docTypeInput = document.getElementById(`${category}-docType`);
+      const status = document.getElementById(`${category}-upload-status`);
+      const file = fileInput.files[0];
+
+      if (!file) {
+        status.textContent = t("noFile");
+        return;
+      }
+
+      try {
+        status.textContent = t("uploading");
+
+        const timestamp = Date.now();
+        const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `customerUploads/${currentUser.uid}/${category}/${timestamp}_${cleanName}`;
+        const storageRef = ref(storage, path);
+
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        await addDoc(collection(db, "customers", currentUser.uid, "uploads"), {
+          category,
+          fileName: file.name,
+          documentType: docTypeInput.value || "",
+          storagePath: path,
+          downloadURL,
+          contentType: file.type || "",
+          uploadedAt: serverTimestamp()
+        });
+
+        status.textContent = t("uploadSuccess");
+        fileInput.value = "";
+        docTypeInput.value = "";
+        await loadUploads(category);
+      } catch (err) {
+        console.error(err);
+        status.textContent = t("uploadError");
+      }
+    }
+
+    async function loadUploads(category) {
+      const list = document.getElementById(`${category}-uploads-list`);
+      if (!list || !currentUser) return;
+
+      list.innerHTML = "";
+
+      try {
+        const q = query(
+          collection(db, "customers", currentUser.uid, "uploads"),
+          where("category", "==", category)
+        );
+
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          list.innerHTML = `<div class="muted">${t("uploadedFiles")}: 0</div>`;
+          return;
+        }
+
+        const items = [];
+        snap.forEach(docSnap => items.push(docSnap.data()));
+
+        items.sort((a, b) => {
+          const aTime = a.uploadedAt?.seconds || 0;
+          const bTime = b.uploadedAt?.seconds || 0;
+          return bTime - aTime;
+        });
+
+        list.innerHTML = `<div class="muted">${t("uploadedFiles")}:</div>` +
+          items.map(item => `
+            <div class="upload-item">
+              <div>
+                <div><strong>${item.fileName || "-"}</strong></div>
+                <div class="muted">${item.documentType || "-"}</div>
+              </div>
+              <div>
+                <a href="${item.downloadURL}" target="_blank" rel="noopener">${t("openFile")}</a>
+              </div>
+            </div>
+          `).join("");
+      } catch (err) {
+        console.error(err);
+        list.innerHTML = `<div class="muted">${t("uploadError")}</div>`;
+      }
+    }
+
+    document.querySelectorAll("[data-lang-btn]").forEach(btn => {
+      btn.addEventListener("click", () => applyLanguage(btn.getAttribute("data-lang-btn")));
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await logoutCustomer();
+        window.location.href = "login.html";
+      } catch (err) {
+        console.error(err);
+        alert(t("logoutError"));
+      }
+    });
+
+    FORM_IDS.forEach(formId => {
+      const form = document.getElementById(`${formId}Form`);
+      if (!form) return;
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await saveFormData(formId);
+      });
+    });
+
+    applyLanguage(currentLang);
+
+    subscribeAuth(async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      currentUser = user;
+
+      try {
+        const profile = await getCustomerProfile(user.uid);
+        currentProfile = profile;
+
+        loading.style.display = "none";
+        app.style.display = "block";
+
+        if (!profile) {
+          heroContent.innerHTML = `
+            <h1>${t("missingProfile")}</h1>
+            <p>${t("missingProfileDesc")}</p>
+          `;
+          inactiveSection.style.display = "none";
+          activeSection.style.display = "none";
+          return;
+        }
+
+        renderHero(profile);
+
+        if (profile.membershipStatus === "active") {
+          inactiveSection.style.display = "none";
+          activeSection.style.display = "block";
+          renderPlanHints(profile.plan);
+          await loadAllMemberDocs(user.uid);
+          renderUploadBoxes();
+          for (const category of UPLOAD_CATEGORIES) {
+            await loadUploads(category);
+          }
+        } else {
+          inactiveSection.style.display = "block";
+          activeSection.style.display = "none";
+        }
+      } catch (err) {
+        console.error(err);
+        loading.textContent = "Fehler beim Laden des Mitgliederbereichs.";
+      }
+    });
+  </script>
+</body>
+</html>
